@@ -1,33 +1,16 @@
-import os
-from fastapi import APIRouter, Request, Form, Depends
-from fastapi.responses import HTMLResponse
+from fastapi import APIRouter, Request, Form
 from fastapi.templating import Jinja2Templates
-from sqlalchemy.orm import Session
-
-# ithu thaan fix da - app. eduthutom
-from database import get_db
-from models import User
-from utils import generate_fitness_plan
+from fastapi.responses import HTMLResponse
+from database import save_user_data, get_all_users
+from gemini_generator import generate_fitness_plan
 
 router = APIRouter()
-
-# ithu thaan 2nd fix da - oru dirname mattum
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-TEMPLATE_DIR = os.path.join(BASE_DIR, "templates")
-
-# Templates folder check pannurom
-if not os.path.exists(TEMPLATE_DIR):
-    # velila irukka try pannurom
-    alt_path = os.path.join(os.path.dirname(BASE_DIR), "templates")
-    if os.path.exists(alt_path):
-        TEMPLATE_DIR = alt_path
-
-print(f"Using templates from: {TEMPLATE_DIR}")
-templates = Jinja2Templates(directory=TEMPLATE_DIR)
+templates = Jinja2Templates(directory="templates")
 
 @router.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    # CORRECT - ipdi thaan irukanum da
+    return templates.TemplateResponse(request, "index.html", {"request": request})
 
 @router.post("/generate", response_class=HTMLResponse)
 async def generate_plan(
@@ -35,26 +18,31 @@ async def generate_plan(
     name: str = Form(...),
     age: int = Form(...),
     gender: str = Form(...),
-    height: int = Form(...),
-    weight: int = Form(...),
+    height: float = Form(...),
+    weight: float = Form(...),
     goal: str = Form(...),
-    db: Session = Depends(get_db)
+    activity: str = Form(...)
 ):
-    try:
-        user = User(name=name, age=age, gender=gender, height=height, weight=weight, goal=goal)
-        db.add(user)
-        db.commit()
+    bmi = round(weight / ((height/100) ** 2), 2)
+    
+    # Gemini la irunthu plan vaanguthu
+    plan = generate_fitness_plan(age, gender, height, weight, goal, activity, bmi)
+    
+    # DB la save pannuthu
+    save_user_data(name, age, gender, height, weight, goal, activity, bmi)
 
-        plan = generate_fitness_plan(age, gender, height, weight, goal)
-        
-        return templates.TemplateResponse("result.html", {
-            "request": request, 
-            "user": user,
-            "plan": plan
-        })
-    except Exception as e:
-        print(f"Error generating plan: {e}")
-        return templates.TemplateResponse("index.html", {
-            "request": request,
-            "error": f"Error: {str(e)}"
-        })
+    return templates.TemplateResponse(request, "result.html", {
+        "request": request,
+        "name": name,
+        "bmi": bmi,
+        "plan": plan,
+        "goal": goal
+    })
+
+@router.get("/all-users", response_class=HTMLResponse)
+async def all_users(request: Request):
+    users = get_all_users()
+    return templates.TemplateResponse(request, "all_users.html", {
+        "request": request,
+        "users": users
+    })
