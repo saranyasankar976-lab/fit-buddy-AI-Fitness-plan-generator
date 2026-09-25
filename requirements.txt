@@ -1,7 +1,7 @@
 fastapi
-uvicorn[standard]
+uvicorn
 jinja2
-sqlalchemy
 python-multipart
 google-generativeai
-python-dotenv
+pymongo
+dnspython
