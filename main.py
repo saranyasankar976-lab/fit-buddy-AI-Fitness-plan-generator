@@ -15,7 +15,7 @@ load_dotenv()  # loads GOOGLE_API_KEY from a .env file if present
 from routes import router
 from database import init_db 
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 
 app = FastAPI(title="FitBuddy - AI Fitness Plan Generator")
