@@ -1,29 +1,31 @@
-"""
-main.py
-FitBuddy application entrypoint.
-Run with:  uvicorn app.main:app --reload
-Then visit http://127.0.0.1:8000  (and /docs for the API explorer)
-"""
-
 import os
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from dotenv import load_dotenv
-
-load_dotenv()  # loads GOOGLE_API_KEY from a .env file if present
 
 from routes import router
-from database import init_db 
+from database import init_db
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 
-app = FastAPI(title="FitBuddy - AI Fitness Plan Generator")
+app = FastAPI(title="FitBuddy")
 
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(router)
-
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 @app.on_event("startup")
-def on_startup():
+def startup_event():
     init_db()
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
