@@ -1,35 +1,32 @@
 import os
-from google import genai
+import google.generativeai as genai
 
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-_client = genai.Client(api_key=GOOGLE_API_KEY) if GOOGLE_API_KEY else None
-MODEL_NAME = "gemini-3-flash-preview"
+# API Key Render la irunthu edukkum
+API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+if API_KEY:
+    genai.configure(api_key=API_KEY)
 
-
-def generate_workout_gemini(goal: str, intensity: str, age: int, weight: float) -> str:
-    if _client is None:
-        return _fallback_plan(goal, intensity)
-
-    prompt = f"""
-You are a certified fitness coach. Create a personalized 7-day workout plan.
-
-User profile:
-- Age: {age}
-- Weight: {weight} kg
-- Fitness goal: {goal}
-- Preferred workout intensity: {intensity}
-
-Format the response as:
-Day 1: <focus>
-  Warm-up (5-10 mins): ...
-  Main workout: exercise - sets x reps
-  Cooldown: ...
-(repeat Day 1 to Day 7)
-""".strip()
-
-    interaction = _client.interactions.create(model=MODEL_NAME, input=prompt)
-    return interaction.output_text
-
-
-def _fallback_plan(goal: str, intensity: str) -> str:
-    return f"[DEMO MODE] 7-day plan placeholder for goal='{goal}', intensity='{intensity}'."
+def generate_workout_gemini(prompt: str):
+    try:
+        # 2.5 model thaan ipo work aaguthu
+        model = genai.GenerativeModel('gemini-2.5-flash')
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        print(f"Gemini 2.5 error: {e}")
+        # 2.5 fail aana 2.0 try pannurom
+        try:
+            model = genai.GenerativeModel('gemini-2.0-flash')
+            response = model.generate_content(prompt)
+            return response.text
+        except Exception as e2:
+            print(f"Fallback error: {e2}")
+            return f"""
+            **Your Personalized Fitness Plan:**
+            
+            {prompt}
+            
+            **Workout:** 30 min Cardio + 20 min Strength + 10 min Stretching daily
+            **Diet:** High protein, low sugar, balanced diet
+            (AI temporarily busy, demo plan shown)
+            """
