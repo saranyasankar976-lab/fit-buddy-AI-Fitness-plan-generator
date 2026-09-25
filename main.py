@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 
 load_dotenv()  # loads GOOGLE_API_KEY from a .env file if present
 
-from app.routes import router
+from routes import router
 from app.database import init_db
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
