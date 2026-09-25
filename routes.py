@@ -1,45 +1,60 @@
 import os
-from fastapi import APIRouter, Request, Form
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import APIRouter, Request, Form, Depends
+from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from sqlalchemy.orm import Session
 
-from models import UserInput, FeedbackRequest
-from gemini_generator import generate_workout_gemini
-from gemini_flash_generator import generate_nutrition_tip_with_flash
-from updated_plan import update_workout_plan
-import database as db
+# ithu thaan fix da - app. eduthutom
+from database import get_db
+from models import User
+from utils import generate_fitness_plan
 
 router = APIRouter()
 
+# ithu thaan 2nd fix da - oru dirname mattum
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_DIR = os.path.join(BASE_DIR, "templates")
+
+# Templates folder check pannurom
+if not os.path.exists(TEMPLATE_DIR):
+    # velila irukka try pannurom
+    alt_path = os.path.join(os.path.dirname(BASE_DIR), "templates")
+    if os.path.exists(alt_path):
+        TEMPLATE_DIR = alt_path
+
+print(f"Using templates from: {TEMPLATE_DIR}")
 templates = Jinja2Templates(directory=TEMPLATE_DIR)
 
-# / - Home route: shows the input form
 @router.get("/", response_class=HTMLResponse)
-def home(request: Request):
-    return templates.TemplateResponse(request, "index.html", {})
+async def home(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
-# /generate-workout - Plan Generator
-@router.post("/generate-workout", response_class=HTMLResponse)
-async def generate_workout(
+@router.post("/generate", response_class=HTMLResponse)
+async def generate_plan(
     request: Request,
     name: str = Form(...),
     age: int = Form(...),
     gender: str = Form(...),
+    height: int = Form(...),
+    weight: int = Form(...),
     goal: str = Form(...),
-    level: str = Form(...)
+    db: Session = Depends(get_db)
 ):
-    user_input = UserInput(name=name, age=age, gender=gender, goal=goal, level=level)
-    
-    workout_plan = generate_workout_gemini(user_input)
-    nutrition_tip = generate_nutrition_tip_with_flash(user_input)
-    
-    # Save to DB
-    db.save_user_data(user_input, workout_plan)
+    try:
+        user = User(name=name, age=age, gender=gender, height=height, weight=weight, goal=goal)
+        db.add(user)
+        db.commit()
 
-    return templates.TemplateResponse(request, "result.html", {
-        "workout": workout_plan,
-        "nutrition": nutrition_tip,
-        "user": user_input
-    })
+        plan = generate_fitness_plan(age, gender, height, weight, goal)
+        
+        return templates.TemplateResponse("result.html", {
+            "request": request, 
+            "user": user,
+            "plan": plan
+        })
+    except Exception as e:
+        print(f"Error generating plan: {e}")
+        return templates.TemplateResponse("index.html", {
+            "request": request,
+            "error": f"Error: {str(e)}"
+        })
