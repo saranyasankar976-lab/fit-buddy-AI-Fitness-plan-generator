@@ -1,37 +1,42 @@
-from pymongo import MongoClient
+import sqlite3
 import os
-from datetime import datetime
 
-# MongoDB connection - Render la MONGO_URI set pannanum da
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
-client = MongoClient(MONGO_URI)
-db = client["fitbuddy_db"]
-collection = db["users"]
+DB_NAME = "fit_buddy.db"
 
-def save_user_data(name, age, gender, height, weight, goal, activity, bmi):
-    try:
-        data = {
-            "name": name,
-            "age": age,
-            "gender": gender,
-            "height": height,
-            "weight": weight,
-            "goal": goal,
-            "activity": activity,
-            "bmi": bmi,
-            "created_at": datetime.now()
-        }
-        collection.insert_one(data)
-        print(f"Saved user: {name}")
-        return True
-    except Exception as e:
-        print(f"DB Error: {e}")
-        return False
+def init_db():
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS users
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  name TEXT,
+                  age INTEGER,
+                  gender TEXT,
+                  height REAL,
+                  weight REAL,
+                  goal TEXT,
+                  activity TEXT,
+                  bmi REAL,
+                  plan TEXT)''')
+    conn.commit()
+    conn.close()
+
+def save_user_data(name, age, gender, height, weight, goal, activity, bmi, plan):
+    init_db()
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+    c.execute("INSERT INTO users (name, age, gender, height, weight, goal, activity, bmi, plan) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+              (name, age, gender, height, weight, goal, activity, bmi, plan))
+    conn.commit()
+    conn.close()
 
 def get_all_users():
-    try:
-        users = list(collection.find().sort("created_at", -1))
-        return users
-    except Exception as e:
-        print(f"DB Fetch Error: {e}")
-        return []
+    init_db()
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+    c.execute("SELECT * FROM users ORDER BY id DESC")
+    users = c.fetchall()
+    conn.close()
+    return users
+
+# Start la DB create pannuthu
+init_db()
