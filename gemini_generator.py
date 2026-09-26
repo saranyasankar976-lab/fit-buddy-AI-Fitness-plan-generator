@@ -1,35 +1,23 @@
-import os
-from google import genai
+def generate_fitness_plan(age, gender, height, weight, goal, activity, bmi):
+    # Simple fallback plan - no API needed, 100% working
+    workout = f"""
+    Day 1: Full Body Strength (Push-ups, Squats, Planks)
+    Day 2: Cardio - 30 min Walking/Jogging
+    Day 3: Upper Body - (Dumbbells if available)
+    Day 4: Active Rest - Yoga / Stretching
+    Day 5: Lower Body - Lunges, Squats
+    Day 6: HIIT - 20 min
+    Day 7: Rest & Recovery
 
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-_client = genai.Client(api_key=GOOGLE_API_KEY) if GOOGLE_API_KEY else None
-MODEL_NAME = "gemini-3-flash-preview"
+    Goal: {goal} | Activity: {activity} | BMI: {bmi}
+    """
 
+    nutrition = f"For {goal}: Eat high protein, 2L water daily, avoid junk food. Your BMI is {bmi} - maintain balanced diet."
 
-def generate_workout_gemini(goal: str, intensity: str, age: int, weight: float) -> str:
-    if _client is None:
-        return _fallback_plan(goal, intensity)
+    recovery = "Sleep 7-8 hours, stretch daily, 1 rest day per week is must."
 
-    prompt = f"""
-You are a certified fitness coach. Create a personalized 7-day workout plan.
-
-User profile:
-- Age: {age}
-- Weight: {weight} kg
-- Fitness goal: {goal}
-- Preferred workout intensity: {intensity}
-
-Format the response as:
-Day 1: <focus>
-  Warm-up (5-10 mins): ...
-  Main workout: exercise - sets x reps
-  Cooldown: ...
-(repeat Day 1 to Day 7)
-""".strip()
-
-    interaction = _client.interactions.create(model=MODEL_NAME, input=prompt)
-    return interaction.output_text
-
-
-def _fallback_plan(goal: str, intensity: str) -> str:
-    return f"[DEMO MODE] 7-day plan placeholder for goal='{goal}', intensity='{intensity}'."
+    return {
+        "workout": workout,
+        "nutrition": nutrition,
+        "recovery": recovery
+    }
