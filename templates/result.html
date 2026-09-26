@@ -1,93 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Your Plan - FitBuddy</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-<style>
-  :root { --accent:#ff6a3d; --accent2:#ffb703; }
-  * { box-sizing:border-box; }
-  body {
-    margin:0; font-family:'Roboto', sans-serif; color:#fff; padding:32px 16px;
-    background: radial-gradient(circle at 20% 0%, #232840, #0a0a0f 60%);
-    display:flex; justify-content:center;
-  }
-  .wrap { width:100%; max-width:720px; }
-  .panel {
-    background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12);
-    border-radius:16px; padding:24px 28px; margin-bottom:20px;
-  }
-  h1 { margin-top:0; }
-  .badge { display:inline-block; padding:4px 10px; border-radius:999px; font-size:0.75rem;
-    background:rgba(255,183,3,0.15); color:var(--accent2); margin-bottom:10px; }
-  .meta { color:#c9c9d6; font-size:0.9rem; line-height:1.6; }
-  pre {
-    white-space:pre-wrap; word-wrap:break-word; background:rgba(0,0,0,0.35);
-    border-radius:10px; padding:16px; font-family:inherit; font-size:0.92rem; line-height:1.6;
-    border:1px solid rgba(255,255,255,0.08);
-  }
-  h2 { font-size:1.1rem; margin-bottom:8px; }
-  form { margin-top:8px; }
-  textarea, input[type=hidden] {
-    width:100%; padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.18);
-    background:rgba(255,255,255,0.06); color:#fff; font-family:inherit; font-size:0.9rem;
-  }
-  button {
-    margin-top:12px; padding:12px 20px; border:none; border-radius:10px;
-    background:linear-gradient(90deg, var(--accent), var(--accent2));
-    color:#111; font-weight:700; cursor:pointer;
-  }
-  a.back { color:#aaa; text-decoration:none; font-size:0.85rem; }
-  a.back:hover { color:#fff; }
-</style>
-</head>
-<body>
-<div class="wrap">
+<html>
+<head><title>Your Plan - FitBuddy</title></head>
+<body style="background:#0f172a; color:white; font-family:sans-serif; padding:20px;">
+<h1>{{ name }}'s Fitness Plan</h1>
+<p>Goal: {{ goal }} • BMI: {{ bmi }}</p>
 
-  {% if error %}
-    <div class="panel"><p>{{ error }}</p><a class="back" href="/">← Back to form</a></div>
-  {% else %}
-
-    <div class="panel">
-      {% if updated %}<span class="badge">Plan updated from feedback</span>{% endif %}
-      <h1>{{ username }}'s Fitness Plan</h1>
-      <p class="meta">
-        User ID: {{ user_id }} &nbsp;•&nbsp; Age: {{ age }} &nbsp;•&nbsp; Weight: {{ weight }} kg<br>
-        Goal: {{ goal }} &nbsp;•&nbsp; Intensity: {{ intensity }}
-      </p>
-    </div>
-
-    {% if updated and feedback %}
-    <div class="panel">
-      <h2>Your feedback</h2>
-      <p class="meta">"{{ feedback }}"</p>
-    </div>
-    {% endif %}
-
-    <div class="panel">
-      <h2>7-Day Workout Plan</h2>
-      <pre>{{ workout_plan }}</pre>
-    </div>
-
-    <div class="panel">
-      <h2>Nutrition / Recovery Tip</h2>
-      <pre>{{ nutrition_tip }}</pre>
-    </div>
-
-    <div class="panel">
-      <h2>Refine this plan</h2>
-      <p class="meta">Tell FitBuddy what to change — e.g. "more cardio" or "add a rest day".</p>
-      <form action="/submit-feedback" method="post">
-        <input type="hidden" name="user_id" value="{{ user_id }}">
-        <textarea name="feedback" rows="3" placeholder="Your feedback..." required></textarea>
-        <button type="submit">Update Plan</button>
-      </form>
-    </div>
-
-    <a class="back" href="/">← Generate a new plan</a>
-  {% endif %}
-
+<div style="background:#1e293b; padding:15px; border-radius:10px; margin:10px 0;">
+<h3>7-Day Workout Plan</h3>
+<pre style="white-space:pre-wrap;">{{ plan.workout }}</pre>
 </div>
+
+<div style="background:#1e293b; padding:15px; border-radius:10px; margin:10px 0;">
+<h3>Nutrition Tip</h3>
+<p>{{ plan.nutrition }}</p>
+<h3>Recovery Tip</h3>
+<p>{{ plan.recovery }}</p>
+</div>
+
+<div style="background:#1e293b; padding:15px; border-radius:10px;">
+<h3>Refine this plan</h3>
+<p>Tell FitBuddy what to change - e.g. "more cardio" or "add a rest day".</p>
+</div>
+
+<a href="/" style="color:yellow;">← Go Back</a>
 </body>
 </html>
