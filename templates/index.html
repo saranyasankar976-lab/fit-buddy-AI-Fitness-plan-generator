@@ -1,83 +1,61 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FitBuddy - AI Fitness Plan Generator</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-<style>
-  :root { --accent:#ff6a3d; --accent2:#ffb703; }
-  * { box-sizing: border-box; }
-  body {
-    margin:0; font-family:'Roboto', sans-serif; color:#fff;
-    min-height:100vh; display:flex; align-items:center; justify-content:center;
-    background:
-      linear-gradient(rgba(10,10,15,0.78), rgba(10,10,15,0.85)),
-      radial-gradient(circle at 20% 20%, #232840, #0a0a0f 60%);
-    padding: 24px;
-  }
-  .card {
-    width:100%; max-width:480px; background:rgba(255,255,255,0.05);
-    border:1px solid rgba(255,255,255,0.12); border-radius:18px;
-    padding:32px; backdrop-filter: blur(6px);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-  }
-  h1 { margin:0 0 4px; font-size:1.7rem; }
-  .sub { color:#c9c9d6; margin:0 0 24px; font-size:0.95rem; }
-  label { display:block; font-size:0.85rem; margin:16px 0 6px; color:#e6e6f0; }
-  input, select {
-    width:100%; padding:12px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.18);
-    background:rgba(255,255,255,0.06); color:#fff; font-size:0.95rem; outline:none;
-  }
-  input:focus, select:focus { border-color: var(--accent); }
-  button {
-    margin-top:26px; width:100%; padding:14px; border:none; border-radius:12px;
-    background:linear-gradient(90deg, var(--accent), var(--accent2));
-    color:#111; font-weight:700; font-size:1rem; cursor:pointer;
-    transition: transform 0.15s ease;
-  }
-  button:hover { transform: translateY(-2px); }
-  .footer-link { display:block; text-align:center; margin-top:18px; color:#aaa; font-size:0.8rem; text-decoration:none; }
-  .footer-link:hover { color:#fff; }
-</style>
+    <title>FitBuddy - AI Fitness</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family: Arial; }
+        body { background: linear-gradient(135deg, #0f172a, #1e3a8a); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; color:white; }
+        .box { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 30px; border-radius: 20px; width: 100%; max-width: 500px; border: 1px solid rgba(255,255,255,0.2); }
+        h1 { text-align:center; margin-bottom:5px; font-size:28px; }
+        p { text-align:center; margin-bottom:20px; opacity:0.8; }
+        label { display:block; margin: 15px 0 5px; font-weight:bold; }
+        input, select { width:100%; padding:12px; border-radius:10px; border:none; font-size:16px; }
+        button { width:100%; margin-top:25px; padding:14px; border:none; border-radius:10px; background:#facc15; font-weight:bold; font-size:18px; cursor:pointer; }
+        button:hover { background:#eab308; }
+    </style>
 </head>
 <body>
-  <div class="card">
-    <h1>💪 FitBuddy</h1>
-    <p class="sub">AI-generated 7-day workout plans, tailored to you.</p>
+    <div class="box">
+        <h1>💪 FitBuddy</h1>
+        <p>AI Fitness Plan Generator</p>
+        <form action="/generate" method="post">
+            <label>Name</label>
+            <input type="text" name="name" placeholder="saranya" required>
 
-    <form action="/generate-workout" method="post">
-      <label for="username">Name</label>
-      <input type="text" id="username" name="username" placeholder="e.g. Saranya" required>
+            <label>Age</label>
+            <input type="number" name="age" placeholder="22" required>
 
-      <label for="user_id">User ID</label>
-      <input type="text" id="user_id" name="user_id" placeholder="e.g. user001" required>
+            <label>Gender</label>
+            <select name="gender" required>
+                <option value="female">Female</option>
+                <option value="male">Male</option>
+                <option value="other">Other</option>
+            </select>
 
-      <label for="age">Age</label>
-      <input type="number" id="age" name="age" min="1" max="119" required>
+            <label>Height (cm)</label>
+            <input type="number" step="0.1" name="height" placeholder="165" required>
 
-      <label for="weight">Weight (kg)</label>
-      <input type="number" id="weight" name="weight" min="1" step="0.1" required>
+            <label>Weight (kg)</label>
+            <input type="number" step="0.1" name="weight" placeholder="60" required>
 
-      <label for="goal">Fitness Goal</label>
-      <select id="goal" name="goal" required>
-        <option value="weight loss">Weight loss</option>
-        <option value="muscle gain">Muscle gain</option>
-        <option value="general wellness">General wellness</option>
-        <option value="flexibility">Flexibility</option>
-      </select>
+            <label>Goal</label>
+            <select name="goal" required>
+                <option value="weight loss">Weight Loss</option>
+                <option value="muscle gain">Muscle Gain</option>
+                <option value="fitness">General Fitness</option>
+            </select>
 
-      <label for="intensity">Workout Intensity</label>
-      <select id="intensity" name="intensity" required>
-        <option value="low">Low</option>
-        <option value="medium" selected>Medium</option>
-        <option value="high">High</option>
-      </select>
+            <label>Activity Level</label>
+            <select name="activity" required>
+                <option value="sedentary">Sedentary</option>
+                <option value="light">Light</option>
+                <option value="moderate">Moderate</option>
+                <option value="active">Active</option>
+            </select>
 
-      <button type="submit">Generate Plan</button>
-    </form>
-
-    <a class="footer-link" href="/view-all-users">Admin: view all users →</a>
-  </div>
+            <button type="submit">🚀 Generate Plan</button>
+        </form>
+    </div>
 </body>
 </html>
