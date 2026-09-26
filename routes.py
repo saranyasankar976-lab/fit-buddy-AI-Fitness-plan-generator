@@ -8,7 +8,7 @@ templates = Jinja2Templates(directory="templates")
 
 @router.get("/")
 async def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(request, "index.html")
 
 @router.post("/generate")
 async def generate_plan(
@@ -21,12 +21,10 @@ async def generate_plan(
     goal: str = Form(...),
     activity: str = Form(...)
 ):
-    bmi = round(weight / ((height/100) ** 2), 2)
+    bmi = round(weight / ((height/100)**2), 2)
     plan = generate_fitness_plan(age, gender, height, weight, goal, activity, bmi)
     save_user_data(name, age, gender, height, weight, goal, activity, bmi, plan)
-
-    return templates.TemplateResponse("result.html", {
-        "request": request,
+    return templates.TemplateResponse(request, "result.html", {
         "name": name,
         "bmi": bmi,
         "plan": plan,
